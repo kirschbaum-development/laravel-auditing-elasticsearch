@@ -24,24 +24,24 @@
         {
             "packagist.org": false,
             "type": "vcs",
-            "url": "https://github.com/rankarpan/laravel-auditing"
+            "url": "https://github.com/owen-it/laravel-auditing"
         }
     ],
     "license": "MIT",
     "support": {
-        "issues": "https://github.com/iconscout/laravel-auditing-elasticsearch/issues",
-        "source": "https://github.com/iconscout/laravel-auditing-elasticsearch"
+        "issues": "https://github.com/kirschbaum-development/laravel-auditing-elasticsearch/issues",
+        "source": "https://github.com/kirschbaum-development/laravel-auditing-elasticsearch"
     },
     "authors": [
         {
-            "name": "Arpan Rank",
-            "email": "arpan@iconscout.com"
+            "name": "Kirschbaum Development",
+            "email": "wilker@kirschbaumdevelopment.com"
         }
     ],
     "require": {
-        "php": ">=7.0",
-        "owen-it/laravel-auditing": "dev-master",
-        "elasticsearch/elasticsearch": "6.*"
+        "php": ">=8.0",
+        "owen-it/laravel-auditing": "^13.6",
+        "elasticsearch/elasticsearch": "^8.*"
     },
     "autoload": {
         "psr-4": {
