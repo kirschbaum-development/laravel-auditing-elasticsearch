@@ -14,7 +14,7 @@
 namespace Iconscout\Auditing\Drivers;
 
 use Carbon\Carbon;
-use Elasticsearch\ClientBuilder;
+use Elastic\Elasticsearch\ClientBuilder;
 use Illuminate\Support\Facades\Config;
 use Iconscout\Auditing\Jobs\AuditIndexQueuedModels;
 use Iconscout\Auditing\Jobs\AuditDeleteQueuedModels;
@@ -37,18 +37,12 @@ class ElasticSearch implements AuditDriver
     protected $index = null;
 
     /**
-     * @var string
-     */
-    protected $type = null;
-
-    /**
      * ElasticSearch constructor.
      */
     public function __construct()
     {
         $this->client = ClientBuilder::create()->setHosts(Config::get('audit.drivers.es.client.hosts', ['localhost:9200']))->build();
         $this->index = Config::get('audit.drivers.es.index', 'laravel_auditing');
-        $this->type = Config::get('audit.drivers.es.type', 'audits');
     }
 
     /**
@@ -60,10 +54,11 @@ class ElasticSearch implements AuditDriver
      */
     public function audit(Auditable $model): Audit
     {
+
         $implementation = Config::get('audit.implementation', AuditModel::class);
-        
+
         $this->storeAudit($model->toAudit());
-        
+
         return new $implementation;
     }
 
@@ -90,7 +85,7 @@ class ElasticSearch implements AuditDriver
         if (Config::get('audit.queue', false)) {
             return $this->indexQueueAuditDocument($model);
         }
-        
+
         return $this->indexAuditDocument($model);
     }
 
@@ -108,7 +103,7 @@ class ElasticSearch implements AuditDriver
         if (Config::get('audit.queue', false)) {
             return $this->deleteQueueAuditDocument($model);
         }
-        
+
         return $this->deleteAuditDocument($model);
     }
 
@@ -145,7 +140,6 @@ class ElasticSearch implements AuditDriver
     {
         $params = [
             'index' => $this->index,
-            'type' => $this->type,
             'id' => (string) Uuid::uuid4(),
             'body' => $model
         ];
@@ -161,7 +155,6 @@ class ElasticSearch implements AuditDriver
 
         $params = [
             'index' => $this->index,
-            'type' => $this->type,
             'size' => 10000 - $skip,
             'from' => $skip,
             'body' => [
@@ -199,18 +192,17 @@ class ElasticSearch implements AuditDriver
 
         if (count($audits)) {
             $audit_ids = array_column($audits, '_id');
-            
+
             foreach ($audit_ids as $audit_id) {
                 $params['body'][] = [
                     'delete' => [
                         '_index' => $this->index,
-                        '_type' => $this->type,
                         '_id' => $audit_id
                     ]
                 ];
 
             }
-            
+
             return (bool) $this->client->bulk($params);
         }
 
@@ -254,7 +246,7 @@ class ElasticSearch implements AuditDriver
             'index' => $this->index
         ];
 
-        return $this->client->indices()->delete($deleteParams);
+        return $this->client->indices()->delete($deleteParams)->asBool();
     }
 
     public function existsIndex()
@@ -263,39 +255,33 @@ class ElasticSearch implements AuditDriver
             'index' => $this->index
         ];
 
-        return $this->client->indices()->exists($params);
+        return $this->client->indices()->exists($params)->asBool();
     }
 
     public function putMapping()
     {
         $params = [
             'index' => $this->index,
-            'type' => $this->type,
             'body' => [
-                $this->type => [
+                'mappings' => [
                     '_source' => [
                         'enabled' => true
                     ],
                     'properties' => [
                         'event' => [
-                            'type' => 'string',
-                            'index' => 'not_analyzed'
+                            'type' => 'keyword'
                         ],
                         'auditable_type' => [
-                            'type' => 'string',
-                            'index' => 'not_analyzed'
+                            'type' => 'keyword'
                         ],
                         'ip_address' => [
-                            'type' => 'string',
-                            'index' => 'not_analyzed'
+                            'type' => 'keyword'
                         ],
                         'url' => [
-                            'type' => 'string',
-                            'index' => 'not_analyzed'
+                            'type' => 'keyword'
                         ],
                         'user_agent' => [
-                            'type' => 'string',
-                            'index' => 'not_analyzed'
+                            'type' => 'keyword'
                         ],
                         'created_at' => [
                             'type' => 'date',

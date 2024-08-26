@@ -13,7 +13,7 @@
 
 namespace Iconscout\Auditing\Traits;
 
-use Elasticsearch\ClientBuilder;
+use Elastic\Elasticsearch\ClientBuilder;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -23,14 +23,12 @@ trait ElasticSearchAuditable
     {
         $client = ClientBuilder::create()->setHosts(Config::get('audit.drivers.es.client.hosts', ['localhost:9200']))->build();
         $index = Config::get('audit.drivers.es.index', 'laravel_auditing');
-        $type = Config::get('audit.drivers.es.type', 'audits');
-           
+
         $from = ($page - 1) * $perPage;
         $order = $sort === 'latest' ? 'desc' : 'asc';
 
         $params = [
             'index' => $index,
-            'type' => $type,
             'size' => $perPage,
             'from' => $from,
             'body' => [
