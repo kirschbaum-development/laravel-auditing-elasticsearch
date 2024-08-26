@@ -92,8 +92,8 @@ class ElasticSearch implements AuditDriver
     public function indexQueueAuditDocument($model)
     {
         dispatch((new AuditIndexQueuedModels($model))
-                ->onQueue($this->syncWithSearchUsingQueue())
-                ->onConnection($this->syncWithSearchUsing()));
+            ->onQueue($this->syncWithSearchUsingQueue())
+            ->onConnection($this->syncWithSearchUsing()));
 
         return true;
     }
@@ -110,8 +110,8 @@ class ElasticSearch implements AuditDriver
     public function deleteQueueAuditDocument($model)
     {
         dispatch((new AuditDeleteQueuedModels($model))
-                ->onQueue($this->syncWithSearchUsingQueue())
-                ->onConnection($this->syncWithSearchUsing()));
+            ->onQueue($this->syncWithSearchUsingQueue())
+            ->onConnection($this->syncWithSearchUsing()));
 
         return true;
     }
@@ -146,7 +146,8 @@ class ElasticSearch implements AuditDriver
 
         try {
             return $this->client->index($params);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
     }
 
     public function searchAuditDocument($model)
@@ -200,7 +201,6 @@ class ElasticSearch implements AuditDriver
                         '_id' => $audit_id
                     ]
                 ];
-
             }
 
             return (bool) $this->client->bulk($params);
@@ -231,7 +231,7 @@ class ElasticSearch implements AuditDriver
                 [
                     'add' => [
                         'index' => $this->index,
-                        'alias' => $this->index.'_write'
+                        'alias' => $this->index . '_write'
                     ]
                 ]
             ]
@@ -263,60 +263,58 @@ class ElasticSearch implements AuditDriver
         $params = [
             'index' => $this->index,
             'body' => [
-                'mappings' => [
-                    '_source' => [
-                        'enabled' => true
+                '_source' => [
+                    'enabled' => true
+                ],
+                'properties' => [
+                    'event' => [
+                        'type' => 'keyword'
                     ],
-                    'properties' => [
-                        'event' => [
-                            'type' => 'keyword'
-                        ],
-                        'auditable_type' => [
-                            'type' => 'keyword'
-                        ],
-                        'ip_address' => [
-                            'type' => 'keyword'
-                        ],
-                        'url' => [
-                            'type' => 'keyword'
-                        ],
-                        'user_agent' => [
-                            'type' => 'keyword'
-                        ],
-                        'created_at' => [
-                            'type' => 'date',
-                            'format' => 'yyyy-MM-dd HH:mm:ss'
-                        ],
-                        'new_values' => [
-                            'properties' => [
-                                'created_at' => [
-                                    'type' => 'date',
-                                    'format' => 'yyyy-MM-dd HH:mm:ss'
-                                ],
-                                'updated_at' => [
-                                    'type' => 'date',
-                                    'format' => 'yyyy-MM-dd HH:mm:ss'
-                                ],
-                                'deleted_at' => [
-                                    'type' => 'date',
-                                    'format' => 'yyyy-MM-dd HH:mm:ss'
-                                ]
+                    'auditable_type' => [
+                        'type' => 'keyword'
+                    ],
+                    'ip_address' => [
+                        'type' => 'keyword'
+                    ],
+                    'url' => [
+                        'type' => 'keyword'
+                    ],
+                    'user_agent' => [
+                        'type' => 'keyword'
+                    ],
+                    'created_at' => [
+                        'type' => 'date',
+                        'format' => 'yyyy-MM-dd HH:mm:ss'
+                    ],
+                    'new_values' => [
+                        'properties' => [
+                            'created_at' => [
+                                'type' => 'date',
+                                'format' => 'yyyy-MM-dd HH:mm:ss'
+                            ],
+                            'updated_at' => [
+                                'type' => 'date',
+                                'format' => 'yyyy-MM-dd HH:mm:ss'
+                            ],
+                            'deleted_at' => [
+                                'type' => 'date',
+                                'format' => 'yyyy-MM-dd HH:mm:ss'
                             ]
-                        ],
-                        'old_values' => [
-                            'properties' => [
-                                'created_at' => [
-                                    'type' => 'date',
-                                    'format' => 'yyyy-MM-dd HH:mm:ss'
-                                ],
-                                'updated_at' => [
-                                    'type' => 'date',
-                                    'format' => 'yyyy-MM-dd HH:mm:ss'
-                                ],
-                                'deleted_at' => [
-                                    'type' => 'date',
-                                    'format' => 'yyyy-MM-dd HH:mm:ss'
-                                ]
+                        ]
+                    ],
+                    'old_values' => [
+                        'properties' => [
+                            'created_at' => [
+                                'type' => 'date',
+                                'format' => 'yyyy-MM-dd HH:mm:ss'
+                            ],
+                            'updated_at' => [
+                                'type' => 'date',
+                                'format' => 'yyyy-MM-dd HH:mm:ss'
+                            ],
+                            'deleted_at' => [
+                                'type' => 'date',
+                                'format' => 'yyyy-MM-dd HH:mm:ss'
                             ]
                         ]
                     ]
